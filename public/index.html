@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UniEvents — College Event Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #13131a;
+      --surface2: #1c1c27;
+      --border: rgba(255,255,255,0.07);
+      --accent: #7c6aff;
+      --accent2: #ff6a9b;
+      --accent3: #6af0c8;
+      --text: #f0f0f8;
+      --muted: #7a7a96;
+      --success: #22d3a0;
+      --error: #ff5f7a;
+      --radius: 16px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,106,255,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,106,155,0.09) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 60% at 50% 50%, rgba(106,240,200,0.05) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Noise texture */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo span { color: var(--accent3); -webkit-text-fill-color: var(--accent3); }
+
+    nav {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      padding: 8px 20px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; position: relative; z-index: 1; }
+    .page.active { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 80px 40px 60px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      border: 1px solid rgba(124,106,255,0.3);
+      background: rgba(124,106,255,0.08);
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+    }
+
+    .event-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      background: linear-gradient(90deg, var(--accent), var(--accent2) 50%, var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 48px;
+    }
+
+    /* ── EVENT CARDS ── */
+    .events-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+    }
+
+    .event-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255,255,255,0.15);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+
+    .event-card:hover::before { opacity: 1; }
+
+    .card-tf::before { background: radial-gradient(circle at top left, rgba(124,106,255,0.12), transparent 60%); }
+    .card-ce::before { background: radial-gradient(circle at top left, rgba(255,106,155,0.12), transparent 60%); }
+    .card-ws::before { background: radial-gradient(circle at top left, rgba(106,240,200,0.12), transparent 60%); }
+    .card-hk::before { background: radial-gradient(circle at top left, rgba(255,200,80,0.12), transparent 60%); }
+    .card-sm::before { background: radial-gradient(circle at top left, rgba(80,180,255,0.12), transparent 60%); }
+    .card-at::before { background: radial-gradient(circle at top left, rgba(200,100,255,0.12), transparent 60%); }
+
+    .card-icon {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+    }
+
+    .card-desc {
+      font-size: 0.84rem;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .card-spots {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .spots-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .register-link {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: gap 0.2s;
+    }
+
+    .event-card:hover .register-link { gap: 8px; }
+
+    /* ── REGISTRATION PAGE ── */
+    .reg-container {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    .page-header {
+      margin-bottom: 48px;
+    }
+
+    .page-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 2.2rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .page-header p { color: var(--muted); font-size: 0.95rem; }
+
+    /* ── FORM ── */
+    .form-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    label span { color: var(--accent2); margin-left: 2px; }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+      appearance: none;
+    }
+
+    input::placeholder, textarea::placeholder { color: rgba(122,122,150,0.5); }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      background: rgba(124,106,255,0.06);
+      box-shadow: 0 0 0 3px rgba(124,106,255,0.12);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a96' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 44px;
+      cursor: pointer;
+    }
+
+    select option { background: #1c1c27; color: var(--text); }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    .field-error {
+      display: none;
+      font-size: 0.75rem;
+      color: var(--error);
+      margin-top: 6px;
+    }
+
+    .form-group.has-error input,
+    .form-group.has-error select {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(255,95,122,0.12);
+    }
+
+    .form-group.has-error .field-error { display: block; }
+
+    /* ── SUBMIT BUTTON ── */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent), #9b6aff);
+      border: none;
+      border-radius: 12px;
+      color: #fff;
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(124,106,255,0.4); }
+    .submit-btn:hover::after { opacity: 1; }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-loading {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── SUCCESS / ERROR TOAST ── */
+    .toast {
+      display: none;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px 24px;
+      border-radius: 16px;
+      margin-bottom: 28px;
+      animation: slideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toast.success {
+      background: rgba(34,211,160,0.08);
+      border: 1px solid rgba(34,211,160,0.25);
+    }
+
+    .toast.error {
+      background: rgba(255,95,122,0.08);
+      border: 1px solid rgba(255,95,122,0.25);
+    }
+
+    .toast-icon { font-size: 1.6rem; line-height: 1; }
+
+    .toast-content h4 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .toast.success h4 { color: var(--success); }
+    .toast.error h4 { color: var(--error); }
+
+    .toast-content p { font-size: 0.88rem; color: var(--muted); line-height: 1.5; }
+    .toast-content .reg-id { color: var(--accent3); font-weight: 600; font-size: 0.95rem; }
+
+    /* ── REGISTRATIONS PAGE ── */
+    .list-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 60px 40px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 100px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .table-wrap {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    thead { background: var(--surface2); }
+
+    th {
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    td {
+      padding: 16px 20px;
+      font-size: 0.88rem;
+      border-top: 1px solid var(--border);
+    }
+
+    tr:hover td { background: rgba(255,255,255,0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .badge-tf { background: rgba(124,106,255,0.15); color: #a899ff; }
+    .badge-ce { background: rgba(255,106,155,0.15); color: #ff99be; }
+    .badge-ws { background: rgba(106,240,200,0.15); color: #6af0c8; }
+    .badge-hk { background: rgba(255,200,80,0.15); color: #ffd166; }
+    .badge-sm { background: rgba(80,180,255,0.15); color: #80c8ff; }
+    .badge-at { background: rgba(200,100,255,0.15); color: #d0a0ff; }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    .stat-label { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      header { padding: 20px; }
+      .hero { padding: 50px 20px 40px; }
+      .events-grid { padding: 0 20px 50px; grid-template-columns: 1fr 1fr; }
+      .reg-container, .list-container { padding: 40px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-card { padding: 24px; }
+      table { font-size: 0.8rem; }
+      th, td { padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Uni<span>Events</span></div>
+  <nav>
+    <button class="nav-btn active" onclick="showPage('home')">Events</button>
+    <button class="nav-btn" onclick="showPage('register')">Register</button>
+    <button class="nav-btn" onclick="showPage('list'); loadRegistrations()">View All</button>
+  </nav>
+</header>
+
+<!-- ═══════════════ HOME PAGE ═══════════════ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="event-badge">2025 Season • Registrations Open</div>
+    <h1>Discover &amp; Join<br/><em>Campus Events</em></h1>
+    <p>From hackathons to cultural nights — find your tribe, build skills, and create memories that last a lifetime.</p>
+  </div>
+
+  <div class="events-grid">
+    <div class="event-card card-tf" onclick="openRegister('Tech Fest')">
+      <span class="card-icon">⚡</span>
+      <div class="card-title">Tech Fest</div>
+      <div class="card-desc">Competitions, demos, and innovation showcases. Battle it out with the brightest minds.</div>
+      <div class="card-spots">
+        <span class="spots-text">May 14–16, 2025</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+
+    <div class="event-card card-ce" onclick="openRegister('Cultural Event')">
+      <span class="card-icon">🎭</span>
+      <div class="card-title">Cultural Event</div>
+      <div class="card-desc">Dance, drama, music, and art. Celebrate diversity and express your creativity.</div>
+      <div class="card-spots">
+        <span class="spots-text">May 20–21, 2025</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+
+    <div class="event-card card-ws" onclick="openRegister('Workshop')">
+      <span class="card-icon">🛠️</span>
+      <div class="card-title">Workshop</div>
+      <div class="card-desc">Hands-on learning with industry experts. Upskill in the latest tools and technologies.</div>
+      <div class="card-spots">
+        <span class="spots-text">Every Saturday</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+
+    <div class="event-card card-hk" onclick="openRegister('Hackathon')">
+      <span class="card-icon">💻</span>
+      <div class="card-title">Hackathon</div>
+      <div class="card-desc">48 hours. One problem. Infinite solutions. Build fast, present bold, win big.</div>
+      <div class="card-spots">
+        <span class="spots-text">June 6–8, 2025</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+
+    <div class="event-card card-sm" onclick="openRegister('Sports Meet')">
+      <span class="card-icon">🏆</span>
+      <div class="card-title">Sports Meet</div>
+      <div class="card-desc">From cricket to chess — compete, cheer, and champion the spirit of sportsmanship.</div>
+      <div class="card-spots">
+        <span class="spots-text">June 12–14, 2025</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+
+    <div class="event-card card-at" onclick="openRegister('Alumni Talk')">
+      <span class="card-icon">🎓</span>
+      <div class="card-title">Alumni Talk</div>
+      <div class="card-desc">Real stories. Raw insights. Meet alumni who've turned campus dreams into careers.</div>
+      <div class="card-spots">
+        <span class="spots-text">Last Friday monthly</span>
+        <a class="register-link" href="#">Register →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ REGISTER PAGE ═══════════════ -->
+<div id="page-register" class="page">
+  <div class="reg-container">
+    <div class="page-header">
+      <h2>Register for an Event</h2>
+      <p>Fill in your details below. You'll get a confirmation ID upon successful registration.</p>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toast-success" class="toast success" style="display:none;">
+      <div class="toast-icon">✅</div>
+      <div class="toast-content">
+        <h4>Registration Confirmed!</h4>
+        <p>Welcome aboard! Your registration ID is <span class="reg-id" id="reg-id-display"></span></p>
+        <p style="margin-top:6px;">We'll see you at the event. Check your email for details.</p>
+      </div>
+    </div>
+
+    <div id="toast-error" class="toast error" style="display:none;">
+      <div class="toast-icon">⚠️</div>
+      <div class="toast-content">
+        <h4>Registration Failed</h4>
+        <p id="error-msg-text"></p>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <form id="reg-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Full Name <span>*</span></label>
+            <input type="text" id="fullName" placeholder="e.g. Arjun Sharma" />
+            <div class="field-error" id="err-fullName">Please enter your full name.</div>
+          </div>
+          <div class="form-group">
+            <label>Email Address <span>*</span></label>
+            <input type="email" id="email" placeholder="you@college.edu" />
+            <div class="field-error" id="err-email">Please enter a valid email.</div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" id="phone" placeholder="+91 98765 43210" />
+            <div class="field-error" id="err-phone">Please enter a valid phone number.</div>
+          </div>
+          <div class="form-group">
+            <label>Year of Study</label>
+            <select id="year">
+              <option value="">Select year</option>
+              <option>1st Year</option>
+              <option>2nd Year</option>
+              <option>3rd Year</option>
+              <option>4th Year</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Event <span>*</span></label>
+            <select id="eventName">
+              <option value="">Choose an event</option>
+              <option>Tech Fest</option>
+              <option>Cultural Event</option>
+              <option>Workshop</option>
+              <option>Hackathon</option>
+              <option>Sports Meet</option>
+              <option>Alumni Talk</option>
+            </select>
+            <div class="field-error" id="err-eventName">Please select an event.</div>
+          </div>
+          <div class="form-group">
+            <label>College / Institution</label>
+            <input type="text" id="collegeName" placeholder="Your college name" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Message (Optional)</label>
+          <textarea id="message" placeholder="Any questions or special requirements?"></textarea>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submit-btn">
+          <span id="btn-text">Confirm Registration →</span>
+          <span class="btn-loading" id="btn-loading">
+            <span class="spinner"></span> Submitting...
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ VIEW ALL PAGE ═══════════════ -->
+<div id="page-list" class="page">
+  <div class="list-container">
+    <div class="page-header">
+      <h2>All Registrations</h2>
+      <p>Live data from MongoDB — all submitted registrations.</p>
+    </div>
+
+    <div class="stats-row" id="stats-row"></div>
+
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" onclick="filterEvent('', this)">All</button>
+      <button class="filter-btn" onclick="filterEvent('Tech Fest', this)">Tech Fest</button>
+      <button class="filter-btn" onclick="filterEvent('Cultural Event', this)">Cultural</button>
+      <button class="filter-btn" onclick="filterEvent('Workshop', this)">Workshop</button>
+      <button class="filter-btn" onclick="filterEvent('Hackathon', this)">Hackathon</button>
+      <button class="filter-btn" onclick="filterEvent('Sports Meet', this)">Sports</button>
+      <button class="filter-btn" onclick="filterEvent('Alumni Talk', this)">Alumni Talk</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Reg. ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Event</th>
+            <th>Year</th>
+            <th>Registered</th>
+          </tr>
+        </thead>
+        <tbody id="reg-table-body">
+          <tr><td colspan="6"><div class="empty-state"><div class="icon">⏳</div>Loading registrations...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ── PAGE NAVIGATION
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    document.querySelectorAll('.nav-btn')[['home','register','list'].indexOf(name)].classList.add('active');
+    window.scrollTo(0, 0);
+  }
+
+  function openRegister(eventName) {
+    showPage('register');
+    document.getElementById('eventName').value = eventName;
+  }
+
+  // ── EVENT BADGE COLORS
+  const badgeClass = {
+    'Tech Fest': 'badge-tf',
+    'Cultural Event': 'badge-ce',
+    'Workshop': 'badge-ws',
+    'Hackathon': 'badge-hk',
+    'Sports Meet': 'badge-sm',
+    'Alumni Talk': 'badge-at'
+  };
+
+  // ── FORM VALIDATION
+  function validate() {
+    let valid = true;
+    const fields = [
+      { id: 'fullName', check: v => v.trim().length >= 2, errId: 'err-fullName' },
+      { id: 'email', check: v => /^\S+@\S+\.\S+$/.test(v.trim()), errId: 'err-email' },
+      { id: 'eventName', check: v => v !== '', errId: 'err-eventName' },
+    ];
+    const phoneVal = document.getElementById('phone').value.trim();
+    if (phoneVal && !/^[0-9+\-\s()]{7,15}$/.test(phoneVal)) {
+      document.getElementById('phone').closest('.form-group').classList.add('has-error');
+      valid = false;
+    } else {
+      document.getElementById('phone').closest('.form-group').classList.remove('has-error');
+    }
+    fields.forEach(({ id, check, errId }) => {
+      const val = document.getElementById(id).value;
+      const grp = document.getElementById(id).closest('.form-group');
+      if (!check(val)) { grp.classList.add('has-error'); valid = false; }
+      else grp.classList.remove('has-error');
+    });
+    return valid;
+  }
+
+  // ── FORM SUBMIT
+  document.getElementById('reg-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideToasts();
+    if (!validate()) return;
+
+    const btn = document.getElementById('submit-btn');
+    document.getElementById('btn-text').style.display = 'none';
+    document.getElementById('btn-loading').style.display = 'flex';
+    btn.disabled = true;
+
+    const payload = {
+      fullName: document.getElementById('fullName').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      phone: document.getElementById('phone').value.trim(),
+      eventName: document.getElementById('eventName').value,
+      collegeName: document.getElementById('collegeName').value.trim(),
+      year: document.getElementById('year').value,
+      message: document.getElementById('message').value.trim(),
+    };
+
+    try {
+      const res = await fetch('/api/registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        document.getElementById('reg-id-display').textContent = data.data.registrationId;
+        showToast('success');
+        document.getElementById('reg-form').reset();
+      } else {
+        document.getElementById('error-msg-text').textContent = data.message;
+        showToast('error');
+      }
+    } catch (err) {
+      document.getElementById('error-msg-text').textContent = 'Network error. Please check your connection and try again.';
+      showToast('error');
+    } finally {
+      document.getElementById('btn-text').style.display = '';
+      document.getElementById('btn-loading').style.display = 'none';
+      btn.disabled = false;
+    }
+  });
+
+  function showToast(type) {
+    const el = document.getElementById('toast-' + type);
+    el.style.display = 'flex';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideToasts() {
+    document.getElementById('toast-success').style.display = 'none';
+    document.getElementById('toast-error').style.display = 'none';
+  }
+
+  // ── LOAD REGISTRATIONS
+  let allRegs = [];
+
+  async function loadRegistrations() {
+    try {
+      const res = await fetch('/api/registrations?limit=100');
+      const data = await res.json();
+      allRegs = data.data || [];
+      renderTable(allRegs);
+      loadStats();
+    } catch {
+      document.getElementById('reg-table-body').innerHTML =
+        '<tr><td colspan="6"><div class="empty-state"><div class="icon">❌</div>Failed to load. Is the server running?</div></td></tr>';
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const res = await fetch('/api/registrations/stats');
+      const data = await res.json();
+      const total = allRegs.length;
+      let html = `<div class="stat-card"><div class="stat-num">${total}</div><div class="stat-label">Total Registrations</div></div>`;
+      data.data.forEach(s => {
+        html += `<div class="stat-card"><div class="stat-num">${s.count}</div><div class="stat-label">${s._id}</div></div>`;
+      });
+      document.getElementById('stats-row').innerHTML = html;
+    } catch {}
+  }
+
+  function filterEvent(event, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const filtered = event ? allRegs.filter(r => r.eventName === event) : allRegs;
+    renderTable(filtered);
+  }
+
+  function renderTable(regs) {
+    const tbody = document.getElementById('reg-table-body');
+    if (!regs.length) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="icon">📋</div>No registrations found.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = regs.map(r => `
+      <tr>
+        <td style="color:var(--accent3);font-weight:600;font-family:'Syne',sans-serif;font-size:0.8rem">${r.registrationId || '—'}</td>
+        <td>${r.fullName}</td>
+        <td style="color:var(--muted)">${r.email}</td>
+        <td><span class="badge ${badgeClass[r.eventName] || ''}">${r.eventName}</span></td>
+        <td style="color:var(--muted)">${r.year || '—'}</td>
+        <td style="color:var(--muted)">${new Date(r.createdAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'})}</td>
+      </tr>
+    `).join('');
+  }
+</script>
+</body>
+</html>
