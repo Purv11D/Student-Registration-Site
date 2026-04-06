@@ -6,7 +6,7 @@ A cloud-native web application for students to register for college events. Buil
 
 ## 🚀 Live Demo
 
-> Once deployed: `https://your-app.onrender.com`
+> Once deployed: `[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)`
 
 ---
 
