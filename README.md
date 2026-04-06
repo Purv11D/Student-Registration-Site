@@ -138,7 +138,7 @@ git push -u origin main
    - Value: *(your Atlas connection string)*
 5. Click **Create Web Service**
 
-Render will build and deploy. Your app will be live at `https://your-app.onrender.com` 🎉
+Render will build and deploy. Your app will be live at `[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)` 🎉
 
 ---
 
