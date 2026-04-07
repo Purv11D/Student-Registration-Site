@@ -6,7 +6,7 @@ A cloud-native web application for students to register for college events. Buil
 
 ## 🚀 Live Demo
 
-> Once deployed: `[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)`
+> Once deployed: `[[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)](https://student-registration-site.onrender.com/)`
 
 ---
 
@@ -138,7 +138,7 @@ git push -u origin main
    - Value: *(your Atlas connection string)*
 5. Click **Create Web Service**
 
-Render will build and deploy. Your app will be live at `[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)` 🎉
+Render will build and deploy. Your app will be live at `[[https://your-app.onrender.com](https://dashboard.render.com/web/srv-d79uuvc50q8c73ad8jo0)](https://student-registration-site.onrender.com/)` 🎉
 
 ---
 
